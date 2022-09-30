@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<style>
+    .correctlyAnswered {
+        color: rgb(0, 255, 0);
+    }
+
+    .wronglyAnswered {
+        color: rgb(255, 0, 0);
+    }
+</style>
+
+<body>
+
+    <main>
+
+        <h2 id="prompt"></h2>
+
+        <form>
+            <p id="A"><input type="checkbox" id="checkboxA"><label id="answerA" for="checkboxA"></label></p>
+            <p id="B"><input type="checkbox" id="checkboxB"><label id="answerB" for="checkboxB"></label></p>
+            <p id="C"><input type="checkbox" id="checkboxC"><label id="answerC" for="checkboxC"></label></p>
+            <p id="D"><input type="checkbox" id="checkboxD"><label id="answerD" for="checkboxD"></label></p>
+
+            <p>
+                <input id="validation" type="button" value="Frage Prüfen" enabled>
+                <input id="next" type="button" value="Nächste Frage" disabled>
+            </p>
+        </form>
+
+        <h3 id="status"></h3>
+
+    </main>
+
+</body>
+
+<script>
+    let total = 0
+    let correct = 0
+
+    let questions = [
+        // Gesetzliche Grundlagen    
+        {
+            prompt: "1. Bei welcher Aufzählung gehören sämtliche Behörden/Organisationen zu den Behörden und Organisationen mit Sicherheitsaufgaben(BOS)?",
+            answerA: "Berufsfeuerwehr, Telekom, Bundespolizei",
+            answerB: "Polizei, Freiwillige Feuerwehr, Bundeszollverwaltung",
+            answerC: "THW, Förster, Militärpolizei (Feldjäger)",
+            answerD: "Malteser-Hilfsdienst, Landeskriminalamt, DLRG",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "2. Die FwDV 800/810 gilt für:",
+            answerA: "den nichtöffentlichen mobilen Landfunkdienst der BOS",
+            answerB: "Polizei und Feuerwehr, nicht für andere BOS",
+            answerC: "den Fernsprechdienst der Deutschen Post AG",
+            answerD: "ausschließlich Polizei",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "3. Jeder Teilnehmer am Sprechfunkverkehr unterliegt:",
+            answerA: "der Abgabenpflicht",
+            answerB: "der Verschwiegenheitspflicht",
+            answerC: "der Verpflichtung, bestehende Vorschriften einzuhalten",
+            answerD: "der Mithörpflicht",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "4. Maßnahmen der Fernmeldesicherheit sollen verhindern, dass:",
+            answerA: "Unbefugte schutzbedürftige Informationen gewinnen",
+            answerB: "Unbefugte am Fernmeldeverkehr teilnehmen",
+            answerC: "der Fernmeldeverkehr gestört wird",
+            answerD: "Informationen exakt an berechtigte Personen weitergegeben werden",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "5. Die Bezeichnung BOS bedeutet:",
+            answerA: "Brand-, Ordnungs- und Sicherheitsbehörden",
+            answerB: "Brandschutzoberaufsicht",
+            answerC: "Behörden und Organisationen mit Sicherheitsaufgaben",
+            answerD: "Behörde des öffentlichen Schutzes",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "6. Die unbefugte Weitergabe von Fernsprechgeheimnissen:",
+            answerA: "ist nur bei dringenden Einsatznachrichten erlaubt",
+            answerB: "wird mit Freiheitsstrafe oder mit Geldstrafe bestraft",
+            answerC: "darf nur der Leiter der Fernmeldezentrale anordnen",
+            answerD: "ist nicht zulässig",
+            correctAnswers: ["B", "D"]
+        },
+        {
+            prompt: "7. Wie nennt man die Dienstvorschriften für den Feuerwehrsprechfunk?",
+            answerA: "DV 300 Sprechfunk",
+            answerB: "FwDV / DV 800/810",
+            answerC: "FwDV 500",
+            answerD: "DV 100",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "8. Welches Gesetz / Verordnung regelt die Fernmeldehoheit der Bundesrepublik?",
+            answerA: "Strafgesetz (StGB)",
+            answerB: "Grundgesetz (GG)",
+            answerC: "Straßenverkehrsordnung (StVO)",
+            answerD: "Bürgerliches Gesetzbuch (BGB)",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "9. Was passiert bei einem Verstoß gegen die Verschwiegenheitspflicht?",
+            answerA: "Ein Verstoß hat keine Konsequenzen",
+            answerB: "Freiheitsstrafe oder Geldstrafe",
+            answerC: "Mündliche Rüge",
+            answerD: "Man darf nicht mehr funken",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "10. Welche Organisationen sind für den Betrieb des Digitalfunknetzes auf Bundesebene verantwortlich?",
+            answerA: "Autorisierte Stelle",
+            answerB: "Koordinierende Stelle",
+            answerC: "BDBOS (Bundesanstalt Digitalfunk für die BOS)",
+            answerD: "ALDB (Technischer Betrieb)",
+            correctAnswers: ["C", "D"]
+        },
+        {
+            prompt: "11. Welcher Begriff ist Bestandteil des Telekommunikationsgesetzes?",
+            answerA: "Wahrung des Fernmeldegeheimnisses",
+            answerB: "Formale Sprechfunkabwicklung",
+            answerC: "Adressierung von Digitalfunkgeräten",
+            answerD: "Netzarchitektur",
+            correctAnswers: ["A"]
+        },
+        // Physikalische und netzspezifische Grundlagen
+        {
+            prompt: "1. Wie muss eine Antenne auf dem Fahrzeugdach ausgerichtet sein?",
+            answerA: "Nach hinten",
+            answerB: "Nach vorne",
+            answerC: "Senkrecht",
+            answerD: "Waagrecht",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "2. Wie hoch ist die Sendeleistung eines HRT im DMO?",
+            answerA: "1 Watt",
+            answerB: "2 Watt",
+            answerC: "5 Watt",
+            answerD: "10 Watt",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "3. Wie hoch ist die Sendeleistung eines MRT im DMO?",
+            answerA: "1,5 Watt",
+            answerB: "3 Watt",
+            answerC: "10 Watt",
+            answerD: "50 Watt",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "4. Wie hoch ist die maximale Sendeleistung eines HRT im TMO?",
+            answerA: "1 Watt",
+            answerB: "2 Watt",
+            answerC: "5 Watt",
+            answerD: "10 Watt",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "5. Wie hoch ist die maximale Sendeleistung eines MRT im TMO?",
+            answerA: "8 Watt",
+            answerB: "1 Watt",
+            answerC: "5 Watt",
+            answerD: "10 Watt",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "6. Dürfen HRT während der Fahrt ohne Außenantenne betrieben werden?",
+            answerA: "Nein",
+            answerB: "Ja",
+            answerC: "Nur vom Beifahrer",
+            answerD: "Nur mit aktiver Ladehalterung",
+            correctAnswers: ["A", "D"]
+        },
+        {
+            prompt: "7. Welche Antennen benötigt ein MRT?",
+            answerA: "Stabantenne am Fahrzeug reicht aus",
+            answerB: "Die eingebaute Antenne reicht aus",
+            answerC: "Zur Vermeidung einer Abstrahlung im Fahrzeuginneren und zur Verbesserung der Empfangsbedingungen, ist die S-/E-Einheit des MRT an eine Dachantenne anzuschließen",
+            answerD: "Am Fahrzeug ist eine Flex Antenne anzubringen",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "8. Welche Aufgabe hat die Rufgruppe Marschkanal?",
+            answerA: "Ausschließlich für die Koordination/Organisation von Leistungsmärschen.",
+            answerB: "Während der Fahrt von der Einsatzstelle zur nächsten Einsatzstelle direkt.",
+            answerC: "Bei geselligen Veranstaltungen können sich benachbarte Feuerwehren darüber anmelden.",
+            answerD: "Für die Kommunikation im Verband während der Fahrt gibt es den „Marschkanal“.",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "9. Wo ist mit schlechten Übertragungsbedingungen zu rechnen?",
+            answerA: "in Tiefgaragenanlagen",
+            answerB: "hinter natürlichen oder künstlichen Hindernissen",
+            answerC: "in der Nähe von Metallzäunen oder Hochspannungsleitungen",
+            answerD: "auf freiem Felde",
+            correctAnswers: ["A", "B", "C"]
+        },
+        {
+            prompt: "10. Von welchen Faktoren ist die Reichweite einer Funkverbindung abhängig?",
+            answerA: "von der Geländeform",
+            answerB: "von Art, Lage und Standort der Antenne",
+            answerC: "von der Senderleistung und der Empfängerempfindlichkeit",
+            answerD: "von der Windstärke",
+            correctAnswers: ["A", "B", "C"]
+        },
+        {
+            prompt: "11. Von welchen Faktoren ist die Reichweite einer Funkverbindung abhängig?",
+            answerA: "von der Topographie",
+            answerB: "von Art, Lage und Standort der Antenne",
+            answerC: "von der Senderleistung",
+            answerD: "von der Frequenz",
+            correctAnswers: ["A", "B", "C", "D"]
+        },
+        {
+            prompt: "12. Welche Eigenschaften elektromagnetischer Wellen werden von der Frequenz beeinflusst?",
+            answerA: "die Wellenlänge",
+            answerB: "die Ausbreitungsgeschwindigkeit",
+            answerC: "die Reichweite",
+            answerD: "die Art der Ausbreitung der Wellen",
+            correctAnswers: ["A", "C"]
+        },
+        {
+            prompt: "13. Erhöhte Antennenstandorte von Funkgeräten führen zu …",
+            answerA: "einer größeren Reichweite der Funkverbindung",
+            answerB: "einer größeren Anzahl nutzbarer Frequenzen",
+            answerC: "eventuellen Störungen benachbarter Funkverkehrskreise",
+            answerD: "einer größeren Ausbreitungsgeschwindigkeit der Funkwellen",
+            correctAnswers: ["A", "C"]
+        },
+        {
+            prompt: "14. Kann beim Einsatz von tragbaren Sprechfunkanlagen (HRT) in Stahlkonstruktionen oder Tunnelanlagen die Ausbreitung der elektromagnetischen welle erheblich gestört werden?",
+            answerA: "Nein in keinem Fall",
+            answerB: "Ja, erheblich",
+            answerC: "spielt keine Rolle",
+            answerD: "ja, jedoch nur unmaßgeblich",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "15. Die Menüeinstellung „TMO“ im Gerät zeigt an, dass……",
+            answerA: "sich das Gerät im Netzbetrieb (Trunked Mode Operation) befindet",
+            answerB: "ein Repeater geschaltet wurde",
+            answerC: "nur jetzt ein Direktruf zwischen zwei Geräten möglich ist",
+            answerD: "jetzt im Marschkanal agiert wird ( TruppenMarschOrganisation )",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "16. Welche Aussage zur ISSI = Individual Short Subscriver Identity ist richtig?",
+            answerA: "für jedes Gerät nur eine ISSI",
+            answerB: "Länge der ISSI: maximal 8 Dezimalstellen",
+            answerC: "ist die OPTA des jeweiligen Gerätes",
+            answerD: "muss nach jedem Einsatz durch den Funkgerätewart überprüft werden",
+            correctAnswers: ["A", "B"]
+        },
+        {
+            prompt: "17. Welche Aussage trifft für die Einzelkommunikation im Netzbetrieb (TMO - Trunked Mode Operation) zu?",
+            answerA: "Der Einzelruf ist in der Betriebsart Netzbetrieb (TMO) nur mit Handfunkgeräten möglich.",
+            answerB: "Der Einzelruf entspricht dem Linienverkehr im Analogfunk. Alle Teilnehmer hören das laufende Funkgespräch mit, dürfen jedoch nicht an der Kommunikation teilnehmen.",
+            answerC: "Die Einzelkommunikation ist eine Punkt-zu-Punkt-Verbindung zwischen zwei Teilnehmern",
+            answerD: "",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "18. Wer ist für das Endgeräte-Management, die Anwenderbetreuung und für den prozessorientierten Service in seinem Zuständigkeitsbereich für den Digitalfunk in Niedersachsen verantwortlich?",
+            answerA: "Die Koordinierende Stelle Digitalfunk Niedersachsen (KSDN)",
+            answerB: "Die Taktisch Technischen Betriebsstellen (TTB)",
+            answerC: "Die Autorisierte Stelle Digitalfunk Niedersachsen (ASDN)",
+            answerD: "Die Bundesnetzagentur",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "19. Im Digitalfunknetz der BOS werden die Betriebsarten Netzbetrieb (TMO - Trunked Mode Operation) und netzunabhängiger Betrieb (DMO - Direct Mode Operation) unterschieden. Welche Aussage ist hierzu richtig?",
+            answerA: "Die Betriebsart Netzbetrieb (TMO) ist für Feuerwehren nicht vorgesehen und wird nur von der Polizei verwendet.",
+            answerB: "Die Betriebsart netzunabhängiger Betrieb (DMO) ist ausschließlich in Gebäuden zulässig.",
+            answerC: "In der Betriebsart netzunabhängiger Betrieb (DMO) können zwei oder mehrere Teilnehmer direkt miteinander kommunizieren, ohne auf die Netzinfrastruktur selbst zugreifen zu müssen.",
+            answerD: "Die Betriebsart netzunabhängiger Betrieb (DMO) wird für den Einsatzstellenfunk vorgezogen",
+            correctAnswers: ["C", "D"]
+        },
+        {
+            prompt: "20. Welche Einrichtung ist der funkbetriebliche Mittelpunkt eines Funkverkehrsbereiches?",
+            answerA: "die große Relaisfunkstelle",
+            answerB: "die Leitstelle",
+            answerC: "das Regierungspräsidium",
+            answerD: "die Bundesnetzagentur",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "21. Was versteht man unter dem Begriff Basisstation?",
+            answerA: "Es ist wie im Analogfunk eine Art Relaisstelle oder Funkzelle.",
+            answerB: "Es ist die Ladestation für alle Funkgeräte.",
+            answerC: "Es ist die Überleitung vom DMO in den TMO Modus.",
+            answerD: "Programmierstation der VSDN für alle Geräte.",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "22. In welcher Betriebsart findet der Kontakt zur Leitstelle statt?",
+            answerA: "DMO (Direktbetrieb)",
+            answerB: "Repeaterschaltung",
+            answerC: "TMO (Netzbetrieb)",
+            answerD: "Gatewaybetrieb",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "23. Wie kann man im Digitalfunk einen Notruf auslösen?",
+            answerA: "Durch Drücken der Kennung 0.",
+            answerB: "Durch Drücken der roten Taste am Bedienteil, oder Funkgerät.",
+            answerC: "Durch die Durchsage hier ist ein Notruf",
+            answerD: "Über die Aktivierung des Menüpunktes Notfall",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "24. Wie kann man schnell vom DMO in den TMO wechseln?",
+            answerA: "Durch Drücken der roten Taste.",
+            answerB: "Durch Drücken der Raute Taste.",
+            answerC: "Das ist nur über den ELW zur Leitstelle möglich.",
+            answerD: "Schalter auf der Rückseite des Gerätes umlegen.",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "25. Was versteht man unter dem Begriff „ISSI“?",
+            answerA: "Internationales Script sicheres Internet",
+            answerB: "jedes Endgerät hat eine eigene ISSI",
+            answerC: "Wie die Telefonnummer von einem Endgerät.",
+            answerD: "Kann optional im Endgerät hinterlegt werden.",
+            correctAnswers: ["B", "C"]
+        },
+        {
+            prompt: "26. Wie erhalten wir im Digitalfunk eine Abhörsicherheit?",
+            answerA: "Verschlüsselung der Sprache",
+            answerB: "Ende zu Ende Verschlüsselung",
+            answerC: "Nur Registrierte Endgeräte können teilnehmen",
+            answerD: "BOS - Sicherheitskarte erforderlich",
+            correctAnswers: ["B", "C", "D"]
+        },
+        {
+            prompt: "27. Was bedeutet die Abkürzung ASDN?",
+            answerA: "Autorisierte Stelle Digitalfunk Niedersachsen",
+            answerB: "Automatische Stabantenne Digitaler Niederfrequenztechnik",
+            answerC: "Autorisierter Stabsdienst Niedersachsen",
+            answerD: "Automatisches System für Digitalfunk in Niedersachsen",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "28. Was bedeutet die Abkürzung UHD?",
+            answerA: "User Help Digital",
+            answerB: "Ultra HD",
+            answerC: "Ultra High Definition",
+            answerD: "User Help Desk",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "29. Was bedeutet die Abkürzung TTB?",
+            answerA: "Tertiäre Taktische Betriebsgruppe",
+            answerB: "Taktisch - Technische Betriebsstelle",
+            answerC: "Taktisch Temporärer Betrieb",
+            answerD: "Technisch - Taktische Betriebsanleitung",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "30. Was bedeutet die Abkürzung TETRA?",
+            answerA: "Terrestrial Trunked Radio",
+            answerB: "Tetrachlormethan",
+            answerC: "Tri-Externale Transistorische Radioanlage",
+            answerD: "Terrestrisch-Triangulierte Radioanlage",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "31. Was bedeutet die Abkürzung DMO?",
+            answerA: "Direkter Operationsmodus",
+            answerB: "Direct Model Output",
+            answerC: "Direct Mode Outdoor",
+            answerD: "Direct Mode Operation",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "32. Was bedeutet die Abkürzung TMO?",
+            answerA: "Trunked Mode Operation",
+            answerB: "Triangulärer Meta Organisator",
+            answerC: "Trinationale Metropolregion Oberrhein",
+            answerD: "Terrestrisch-Modulierte Operation",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "33. Was bedeutet die Abkürzung GPS?",
+            answerA: "Global Positioning System",
+            answerB: "Garmin Produkt System",
+            answerC: "Globales Punkt System",
+            answerD: "Ganzheitliches Produktsystem",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "34. Was bedeutet die Abkürzung SDS?",
+            answerA: "Seperate Daten Sendung",
+            answerB: "Short Data Service",
+            answerC: "Sicherer Daten Scrip",
+            answerD: "Save Direct Service",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "35. Was bedeutet die Abkürzung ISSI?",
+            answerA: "International Space Science Institute",
+            answerB: "Individual Short Subscriber Identity",
+            answerC: "International Society for Scientometrics and Informetrics",
+            answerD: "Individual Short Substitution Identity",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "36. Was bedeutet die Abkürzung TEI?",
+            answerA: "TETRA Extra Information",
+            answerB: "Teilzeitshop",
+            answerC: "Text Encoding Initiative",
+            answerD: "TETRA Equipment Identity",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "37. Welche Aufgabe hat ein Repeater?",
+            answerA: "Vergrößert der Reichweite",
+            answerB: "Wird im DMO eigesetzt",
+            answerC: "Es darf nur ein Repeater pro DMO – Rufgruppe geschaltet werden",
+            answerD: "Ist die Verbindung zwischen TMO und DMO",
+            correctAnswers: ["A", "B", "C"]
+        },
+        {
+            prompt: "38. Wo ist der ideale Standort für einen Repeater?",
+            answerA: "Zwischen zwei DMO-Geräten die keine Direkte Verbindung haben",
+            answerB: "Auf einem leicht erhöhten Standort z.B. Stativ",
+            answerC: "Im Turm",
+            answerD: "Am Hauptzugang des Einsatzortes",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "39. Was passiert, wenn zwei Repeater auf derselben Rufgruppe aktiv sind?",
+            answerA: "Die Geräte nutzen einen der beiden Repeater (zufälliges einbuchen in einen der Repeater)",
+            answerB: "Die Kommunikation ist sichergestellt",
+            answerC: "Ein Notruf kann verloren gehen",
+            answerD: "Es kann zu Rückkopplungen kommen",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "40. Wer legt fest ob ein Repeater eingesetzt werden soll?",
+            answerA: "Der Einsatzleiter",
+            answerB: "Gruppenführer",
+            answerC: "Leitstellendisponent",
+            answerD: "Truppführer",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "41. Woran erkenne ich, ob ein Repeater aktiv ist?",
+            answerA: "An einem Symbol im Display",
+            answerB: "Blinkender LED Rot / Grün",
+            answerC: "An der blinkenden LED alle 10sec",
+            answerD: "An einem Warnsymbol in der Bildschirmmitte",
+            correctAnswers: ["A"]
+        },
+        // TODO: Fragen 42 und 43
+        {
+            prompt: "44. Welche Aufgabe hat ein Gateway?",
+            answerA: "Verbindet zwei TMO Gruppen miteinander",
+            answerB: "Ein Gateway ermöglicht Gruppenrufe zwischen einer DMO-Rufgruppe und einer TMO-Rufgruppe",
+            answerC: "Ist ein Relais zwischen Analog und Digital Funk",
+            answerD: "Die Verstärkung der Repeaterleistung",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "45. Wie nennt man die Funktion die eine TMO und DMO Rufgruppe koppelt?",
+            answerA: "Gateway",
+            answerB: "Tandem",
+            answerC: "Relaisstelle",
+            answerD: "Repeater",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "46. Wer legt fest ob ein Gateway genutzt werden soll?",
+            answerA: "Kreisfunkwart",
+            answerB: "Jeder",
+            answerC: "Kreisbrandmeister",
+            answerD: "Einsatzleitung nach Freigabe durch die Leitstelle",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "47. Wovon hängt die Reichweite eines HRT ab?",
+            answerA: "Tragweise des Gerätes",
+            answerB: "Luftfeuchtigkeit",
+            answerC: "Windrichtung",
+            answerD: "Art der Antennenwendelung",
+            correctAnswers: ["A", "D"]
+        },
+        {
+            prompt: "48. Wovon hängt die Reichweite eines MRT/FRT ab?",
+            answerA: "Von der Kabellänge zwischen Antenne und Endgerät",
+            answerB: "Anbringungsort der Antenne am Objekt",
+            answerC: "Von der Windstärke",
+            answerD: "Standort des Objekts",
+            correctAnswers: ["B", "D"]
+        },
+        {
+            prompt: "49. Was wird bei einem Notruf im TMO übertragen?",
+            answerA: "Name",
+            answerB: "GPS",
+            answerC: "Straße und Hausnummer",
+            answerD: "ISSI",
+            correctAnswers: ["B", "D"]
+        },
+        {
+            prompt: "50. Was ist ein Status?",
+            answerA: "Statusmeldungen sind standardisierte Nachrichten.",
+            answerB: "Sie reduzieren den Sprechfunkverkehr im Netzbetrieb",
+            answerC: "Die Übertragung wird durch festgelegte Eingaben am Endgerät ausgelöst",
+            answerD: "Der Status gibt die Stärke einer Feuerwehr wieder",
+            correctAnswers: ["A", "B", "C"]
+        },
+        {
+            prompt: "51. Was bedeutet der Status 1?",
+            answerA: "Nicht einsatzbereit",
+            answerB: "Einsatzübernahme",
+            answerC: "Bedingt verfügbar",
+            answerD: "Einsatzbereit Funk",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "52. Was bedeutet der Status 2?",
+            answerA: "Einsatzbereit Funk",
+            answerB: "Einsatzbereit Wache",
+            answerC: "Einsatzübernahme",
+            answerD: "Einsatzort",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "53. Was bedeutet der Status 3?",
+            answerA: "Einsatzübernahme",
+            answerB: "Einsatzort",
+            answerC: "Sprechwunsch",
+            answerD: "Nicht einsatzbereit",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "54. Was bedeutet der Status 4?",
+            answerA: "Priorisierter Sprechwunsch",
+            answerB: "Einsatzbereit Wache",
+            answerC: "Einsatzübernahme",
+            answerD: "Am Einsatzort",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "55. Was bedeutet der Status 5?",
+            answerA: "Einsatzort",
+            answerB: "Sprechwunsch",
+            answerC: "Nicht einsatzbereit",
+            answerD: "Einsatzgebunden",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "56. Was regelt die Gruppe Anforderungen an das Netz (GAN)?",
+            answerA: "Legt die Anzahl der Basisstationen fest",
+            answerB: "Festlegung der Sendeleistung der Funkgeräte",
+            answerC: "Legt den Mindeststandard für die Funkversorgung fest",
+            answerD: "Festlegung der Anzahl der Vermittlungsstellen",
+            correctAnswers: ["C"]
+        },
+        // Rufgruppen
+        {
+            prompt: "1. Wie viele Rufgruppen gibt es im DMO mit einem F?",
+            answerA: "20",
+            answerB: "11",
+            answerC: "15",
+            answerD: "30",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "2. Was bedeutet es wenn kein Stern hinter der DMO Rufgruppe steht?",
+            answerA: "Darf nur von der Leitstelle vergeben werden",
+            answerB: "Darf im Bereich der Radioastronomie Schutzzone nicht benutzt werden",
+            answerC: "Ist die Rufgruppe die nur bei Tag genutzt wird",
+            answerD: "Darf nur mit Gruppenführerausbildung geschaltet werden",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "3. Welche Aussage kann über die Rufgruppe 307_F* getroffen werden?",
+            answerA: "Ist die erste Gruppe in der Feuerwehrgruppe",
+            answerB: "Ist der Marschkanal",
+            answerC: "Darf in der Schutzzone für Radioastronomie genutzt werden",
+            answerD: "Wird nur bei Nacht benutzt",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "4. Wie viele Rufgruppen mit F im DMO können in ganz Deutschland ohne Einschränkung genutzt werden?",
+            answerA: "12",
+            answerB: "10",
+            answerC: "01",
+            answerD: "20",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "5. Ist der Marschkanal eine TMO oder DMO Rufgruppe?",
+            answerA: "TMO",
+            answerB: "DMO",
+            answerC: "Sowohl DMO als auch TMO.",
+            answerD: "Wird von der Leitstelle lageabhängig entschieden.",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "6. In welchen Ordner befindet sich der Marschkanal?",
+            answerA: "DMO 201-399",
+            answerB: "DMO 307-614",
+            answerC: "DMO EURO",
+            answerD: "DMO NDS",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "7. Was bedeutet ein Stern hinter DMO Rufgruppe?",
+            answerA: "Ist die Rufgruppe der Polizei",
+            answerB: "Ist eine besondere Rufgruppe für Ortsbrandmeister",
+            answerC: "Wird nur bei Einsätzen bei Nacht benutzt",
+            answerD: "Rufgruppe darf in der Schutzzone für Radioastronomie genutzt werden",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "8. Wer ist über die allgemeine Anrufgruppe erreichbar?",
+            answerA: "Die entsprechende Leitstelle",
+            answerB: "Eine Telefonzelle im Funkkreis",
+            answerC: "Eine Gruppe von Einsatzkräften",
+            answerD: "der Kreisbrandmeister",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "9. Was sind TBZ-Gruppen?",
+            answerA: "Technische Betriebsgruppen",
+            answerB: "Taktisch-technische Zusammenarbeitsgruppen",
+            answerC: "Telefonbetriebszentren",
+            answerD: "",
+            correctAnswers: ["B"]
+        },
+        // Adressierung
+        {
+            prompt: "1. Was versteht man unter dem Begriff OPTA?",
+            answerA: "Ordnung, Polizei Taktik Anweisung",
+            answerB: "Objekt Taktik Ausleuchtung",
+            answerC: "Operativ Taktische Adresse (Funkrufname)",
+            answerD: "Organisatorische Polizeitruppen Administration",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "2. Was versteht man unter dem Begriff OPTA?",
+            answerA: "Jedes Endgerät hat eine eigene OPTA",
+            answerB: "Wird auf der BOS - Sicherheitskarte gespeichert",
+            answerC: "Wird beim Drücken der Sendetaste übermittelt",
+            answerD: "Aus der OPTA leitet sich der gesprochene Funkrufname ab",
+            correctAnswers: ["A", "C", "D"]
+        },
+        // Sprachdienste (Allgemeiner Sprechfunkverkehr)
+        {
+            prompt: "1. Sprechfunknachrichten werden nach Vorrangstufen unterteilt in:",
+            answerA: "Einfachnachrichten, Eilnachrichten",
+            answerB: "Einfachnachrichten, wichtige Nachrichten",
+            answerC: "Einfach-, Sofort-, Blitz-,",
+            answerD: "Sofort-, Eilnachrichten, Einfachnachrichten",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "2. Bei der Verkehrsabwicklung ist folgendes zu beachten:",
+            answerA: "Der Sprechfunkverkehr ist so kurz wie möglich, aber so umfassend wie nötig durchzuführen",
+            answerB: "langsam und deutlich sprechen, Abkürzungen vermeiden",
+            answerC: "bei Übungen in Zeitabständen auf den Übungsverkehr hinweisen",
+            answerD: "nichts aufgrund des geringen Funkverkehrs",
+            correctAnswers: ["A", "B"]
+        },
+        {
+            prompt: "3. Welches der folgenden Beispiele zur Verkehrsabwicklung ist vorschriftsmäßig?",
+            answerA: "Florian Niedersachsen für Florian Niedersachsen 8-40-2 bitte kommen",
+            answerB: "Leitstelle Niedersachsen von Florian Niedersachsen 8-40-2 kommen",
+            answerC: "Florentine Niedersachsen an Florian Niedersachsen 8-40-2 kommen",
+            answerD: "Florentine Niedersachsen für Leitstelle Niedersachsen kommen",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "4. Ein Sprech- oder Durchsagefehler ist sofort zu berichtigen mit der Ankündigung:",
+            answerA: "Ich wiederhole",
+            answerB: "noch mal",
+            answerC: "Ich bestätige",
+            answerD: "Ich berichtige",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "5. Ein Anruf beginnt mit den Worten:",
+            answerA: "Florian Y von Florian X kommen",
+            answerB: "Florian Y für Florian X kommen",
+            answerC: "Florian X an Florian Y kommen",
+            answerD: "Moin Moin",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "6. Ein Anruf ist sofort durch die Anrufantwort mit den Worten zu bestätigen:",
+            answerA: "Hier Florian Y sprechen",
+            answerB: "Moin , was kann ich tun",
+            answerC: "Florian Y hört, kommen",
+            answerD: "Hier Florian Y kommen",
+            correctAnswers: ["D"]
+        },
+        {
+            prompt: "7. Das Funkgespräch wird beendet mit dem Wort:",
+            answerA: "Verstanden",
+            answerB: "Ende",
+            answerC: "Over",
+            answerD: "Roger",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "8. Eine Frage wird eingeleitet mit dem Wort / Worten:",
+            answerA: "Kommen, ob verstanden",
+            answerB: "Frage",
+            answerC: "Wiederholen Sie",
+            answerD: "Was willst du",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "9. Der Sprechfunkverkehr wird eröffnet durch:",
+            answerA: "die Anrufantwort",
+            answerB: "den Anruf",
+            answerC: "den Einsatzleiter",
+            answerD: "die Gegenstelle",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "10. Bei der Durchsage einer Nachricht hat sich der Sprechfunker versprochen und will den Fehler richtigstellen. Welche Formulierung ist richtig?",
+            answerA: "Die Verpflegung trifft in einer Stunde - ich bessere - in einer halben Stunde ein, kommen",
+            answerB: "Verpflegung trifft in einer Stunde - ich korrigiere - in Kürze ein",
+            answerC: "Die Verpflegung trifft in einer Stunde - ich berichtige - in einer halben Stunde ein, kommen",
+            answerD: "Wiederhole - in einer halben Stunde ein, kommen",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "11. Welches ist die richtige Buchstabierweise des Wortes Duplex?",
+            answerA: "Delta-Ulrich-Paula-Ludwig-Erich-Xantippe",
+            answerB: "Dora-Ulrich-Paula-Ludwig-Emil-Xantippe",
+            answerC: "Dora-Uwe-Paula-Ludwig-Emil-X-Ray",
+            answerD: "Dora-Ulrich-Paul-Ludwig-Emil-Xantippe",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "12. Welche Statusmeldungen sind richtig?",
+            answerA: "Status 3 = Einsatzübernahme",
+            answerB: "Status 5 = Sprechwunsch",
+            answerC: "Status 4 = am Einsatzort eingetroffen",
+            answerD: "Status 6 = nicht einsatzbereit",
+            correctAnswers: ["A", "B", "C", "D"]
+        },
+        {
+            prompt: "13. Ein DMO Repeater ist möglich für:",
+            answerA: "eine Reichweitenvergrößerung an der Einsatzstelle",
+            answerB: "Einsätze in Tiefgaragen, Krankenhäusern und Industriebauten",
+            answerC: "die Überleitung von einer DMO Rufgruppe in eine TMO Rufgruppe",
+            answerD: "die Verbindung mehrerer DMO Rufgruppen zu einer",
+            correctAnswers: ["A", "B"]
+        },
+        {
+            prompt: "14. Ein MRT Gerät ist",
+            answerA: "ein Handsprechfunkgerät im 2m Band",
+            answerB: "dient alleine dem Sprechfunkbetrieb zur Einsatzleitstelle",
+            answerC: "ist ein fest eingebautes Fahrzeugfunkgerät",
+            answerD: "ein Gerät das nur im Innenangriff verwendet wird",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "15. Der Gesprächsaufbau zur Einsatzleitstelle wird wie eröffnet?",
+            answerA: "Funkspruch: Leitstelle Niedersachsen von Florian Niedersachsen 8-43-1 kommen",
+            answerB: "durch Senden der Statusmeldung 5",
+            answerC: "durch Senden der Statusmeldung 3",
+            answerD: "durch Wechsel zur Rufgruppe 112F*",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "16. Der Funkrufname der Feuerwehr lautet:",
+            answerA: "Florian für Feststationen, Florentine für feste Fahrzeugfunkgeräte",
+            answerB: "Florian bei MRT Geräten",
+            answerC: "Florentine bei HRT-Geräten im TMO-Betrieb",
+            answerD: "Flora bei FRT- Geräten",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "17. Wie lautet der korrekte Gesprächsaufbau bei einer Notfallsituation",
+            answerA: "Mayday Mayday Mayday hier Florian Niedersachsen 8-43-2",
+            answerB: "durch Drücken der Notruftaste für 3 Sekunden",
+            answerC: "durch dreimaliges Drücken der Sprechtaste",
+            answerD: "Wahl von 112 auf dem Funkgerät",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "18. Bei der Abwicklung des Sprechfunkverkehrs ist was zu beachten?",
+            answerA: "Er ist so kurz wie möglich, aber so umfassend wie nötig abzuwickeln.",
+            answerB: "Nichts, jeder kann sagen was er will.",
+            answerC: "Es muss immer alles an den Einsatzleiter gefunkt werden.",
+            answerD: "Nichts aufgrund des geringen Funkverkehrs im BOS Bereich.",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "19. Sie sind als angerufene Sprechfunkbetriebsstelle nicht in der Lage, eine Nachricht sofort aufzunehmen. Welche Anrufantwort ist zu verwenden?",
+            answerA: "Hier (Rufname) - ich habe keine Zeit - ENDE“",
+            answerB: "Hier (Rufname) - ich kann Sie nicht aufnehmen - ENDE",
+            answerC: "Hier (Rufname) - warten!",
+            answerD: "Hier (Rufname) - melde mich später",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "20. Wie kann man zur Leitstelle eine Rückmeldung ankündigen?",
+            answerA: "Durch Drücken der Kennung 0",
+            answerB: "Durch Drücken der Kennung 5",
+            answerC: "Durch den Anruf, Leitstelle XY von Florian YX mit Rückmeldung kommen.",
+            answerD: "Durch Drücken der Taste 9",
+            correctAnswers: ["B", "C"]
+        },
+        {
+            prompt: "21. In welcher Betriebsart wird Kontakt zur Leitstelle hergestellt?",
+            answerA: "DMO (Direct Mode Operation)",
+            answerB: "Über Draht",
+            answerC: "TMO (Trunked Mode Operation)",
+            answerD: "Über ein Gateway",
+            correctAnswers: ["C"]
+        },
+        // Kartenkunde
+        {
+            prompt: "1. Welche Navigationsmöglichkeit ist mit einen Digitalfunkgerät möglich?",
+            answerA: "Aktueller Kartenausschnitt lässt sich anzeigen (In Kombination mit Waldbrandkartennummer)",
+            answerB: "UTM-Gitternetz unter Menüpunkt Navigation",
+            answerC: "Abrufen von GPS Koordinaten",
+            answerD: "Anzeige eines Kompasses",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "2. In welcher Reihenfolge werden Koordinaten angegeben?",
+            answerA: "Erst Ostwert, dann Nordwert",
+            answerB: "Erst Linkswert, dann Hochwert",
+            answerC: "Erst Nordwert, dann Ostwert",
+            answerD: "Erst Hochwert, dann Linkswert",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "3. Die Waldbrandeinsatzkarten der Feuerwehren besitzen den Maßstab:",
+            answerA: "1:5 000",
+            answerB: "1:50 000",
+            answerC: "1:100 000",
+            answerD: "1:250 000",
+            correctAnswers: ["B"]
+        },
+        {
+            prompt: "4. Der Maßstab 1: 50 000 bedeutet:",
+            answerA: "1 cm auf der Karte entspricht 500 m in der Natur",
+            answerB: "5 cm auf der Karte entsprechen 1 km in der Natur",
+            answerC: "1 cm auf der Karte entspricht 5 km in der Natur",
+            answerD: "10 cm auf der Karte entsprechen 500 m in der Natur",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "5. Die Abkürzung UTM hat die Bedeutung:",
+            answerA: "Ungenaue Taktische Maßangabe",
+            answerB: "Universelle Technische Maßeinheit",
+            answerC: "Universale Transversale Mercatorprojektion",
+            answerD: "Unterstelle Technische Mittlungstelle",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "6. Welche Aussage(n) ist oder sind richtig? Die Koordinate 32 U ND 662 217",
+            answerA: "32 die Zone und U das Band",
+            answerB: "32 das Band und U die Zone",
+            answerC: "ND das 100 km Quadrat",
+            answerD: "MD das 10 km Quadrat",
+            correctAnswers: ["A", "C"]
+        },
+        {
+            prompt: "7. Welche Aussage(n) ist oder sind richtig? Die Koordinate 32 U ND 662 217",
+            answerA: "662 den Ostwert",
+            answerB: "217 den Nordwert",
+            answerC: "217 den Ostwert",
+            answerD: "662 den Nordwert",
+            correctAnswers: ["A", "B"]
+        },
+        {
+            prompt: "8. Welches ist das aktuelle Lagebezugssystem bei topographischen Karten?",
+            answerA: "WGS 84",
+            answerB: "ED 50",
+            answerC: "UTM",
+            answerD: "GPS",
+            correctAnswers: ["A"]
+        },
+        {
+            prompt: "9. Welches Koordinatensystem wird im Digitalfunkgerät genutzt?",
+            answerA: "UMTS",
+            answerB: "MAPS",
+            answerC: "GPS",
+            answerD: "UTM",
+            correctAnswers: ["C"]
+        },
+        {
+            prompt: "10. Wo ist ein GPS-Empfang sehr eingeschränkt oder nicht möglich?",
+            answerA: "Unterständen",
+            answerB: "Keller",
+            answerC: "Gebäude",
+            answerD: "Freie Flächen",
+            correctAnswers: ["B", "C"]
+        },
+        {
+            prompt: "11. Welche Navigationsmöglichkeit ist mit einen Digitalfunkgerät möglich?",
+            answerA: "Aktueller Kartenausschnitt lässt sich anzeigen (In Kombination mit Waldbrandkartennummer)",
+            answerB: "UTM-Gitternetz unter Menüpunkt Navigation",
+            answerC: "Abrufen von GPS Koordinaten",
+            answerD: "Anzeige eines Kompasses",
+            correctAnswers: ["C"]
+        }
+    ]
+
+    function loadQuestion(number) {
+        let question = questions[number]
+
+        document.getElementById("prompt").innerText = question.prompt
+        document.getElementById("answerA").innerText = question.answerA
+        document.getElementById("answerB").innerText = question.answerB
+        document.getElementById("answerC").innerText = question.answerC
+        document.getElementById("answerD").innerText = question.answerD
+
+        document.getElementById("A").className = ""
+        document.getElementById("B").className = ""
+        document.getElementById("C").className = ""
+        document.getElementById("D").className = ""
+
+        document.getElementById("answerA").setAttribute("correct", false)
+        document.getElementById("answerB").setAttribute("correct", false)
+        document.getElementById("answerC").setAttribute("correct", false)
+        document.getElementById("answerD").setAttribute("correct", false)
+
+        for (let answer of question.correctAnswers) {
+            if (answer == "A")
+                document.getElementById("answerA").setAttribute("correct", true)
+            if (answer == "B")
+                document.getElementById("answerB").setAttribute("correct", true)
+            if (answer == "C")
+                document.getElementById("answerC").setAttribute("correct", true)
+            if (answer == "D")
+                document.getElementById("answerD").setAttribute("correct", true)
+        }
+    }
+
+    document.getElementById("validation").addEventListener("click", checkAnswer)
+    document.getElementById("next").addEventListener("click", nextQuestion)
+
+    function checkAnswer() {
+        let correctlyAnswered = true
+
+        if (document.getElementById("checkboxA").checked == (document.getElementById("answerA").getAttribute("correct") == 'true')) {
+            // Frage A richtig beantwortet
+            document.getElementById("A").className = "correctlyAnswered"
+        } else {
+            // Frage A falsch beantwortet
+            document.getElementById("A").className = "wronglyAnswered"
+            correctlyAnswered = false
+        }
+
+        if (document.getElementById("checkboxB").checked == (document.getElementById("answerB").getAttribute("correct") == 'true')) {
+            // Frage B richtig beantwortet
+            document.getElementById("B").className = "correctlyAnswered"
+        } else {
+            // Frage B falsch beantwortet
+            document.getElementById("B").className = "wronglyAnswered"
+            correctlyAnswered = false
+        }
+
+        if (document.getElementById("checkboxC").checked == (document.getElementById("answerC").getAttribute("correct") == 'true')) {
+            // Frage C richtig beantwortet
+            document.getElementById("C").className = "correctlyAnswered"
+        } else {
+            // Frage C falsch beantwortet
+            document.getElementById("C").className = "wronglyAnswered"
+            correctlyAnswered = false
+        }
+
+        if (document.getElementById("checkboxD").checked == (document.getElementById("answerD").getAttribute("correct") == 'true')) {
+            // Frage D richtig beantwortet
+            document.getElementById("D").className = "correctlyAnswered"
+        } else {
+            // Frage D falsch beantwortet
+            document.getElementById("D").className = "wronglyAnswered"
+            correctlyAnswered = false
+        }
+
+        total += 1
+        if (correctlyAnswered)
+            correct += 1
+
+        document.getElementById("status").innerText = correct + "/" + total + "/" + (questions.length + 1) + "\t" + correct / total * 100.0 + "%"
+
+        document.getElementById("validation").disabled = true
+        if (total < questions.length) {
+            document.getElementById("next").disabled = false
+        } else {
+            document.getElementById("status").innerText += "\n Alle Fragen beantwortet!"
+        }
+
+    }
+
+    function nextQuestion() {
+        loadQuestion(total)
+
+        document.getElementById("validation").disabled = false
+        document.getElementById("next").disabled = true
+
+        document.getElementById("checkboxA").checked = false
+        document.getElementById("checkboxB").checked = false
+        document.getElementById("checkboxC").checked = false
+        document.getElementById("checkboxD").checked = false
+    }
+
+    loadQuestion(0)
+
+</script>
+
+</html>
