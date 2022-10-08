@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-                   
+
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                                                         
+
     <title>Sprechfunker</title>
 </head>
 
@@ -24,21 +24,36 @@
 
     <main>
 
-        <h2 id="prompt"></h2>
+        <div id="homeView">
 
-        <form>
-            <p id="A"><input type="checkbox" id="checkboxA"><label id="answerA" for="checkboxA"></label></p>
-            <p id="B"><input type="checkbox" id="checkboxB"><label id="answerB" for="checkboxB"></label></p>
-            <p id="C"><input type="checkbox" id="checkboxC"><label id="answerC" for="checkboxC"></label></p>
-            <p id="D"><input type="checkbox" id="checkboxD"><label id="answerD" for="checkboxD"></label></p>
+            <h2>Prüfungsfragen Sprechfunkerlehrgang</h2>
+            <h3>Niedersachsen 05/2022</h3>
 
-            <p>
-                <input id="validation" type="button" value="Frage Prüfen" enabled>
-                <input id="next" type="button" value="Nächste Frage" disabled>
-            </p>
-        </form>
+            <form action="">
+                <p><input id="randomized" type="checkbox" checked> <label for="randomized">Randomisiert</label></p>
+                <input id="start" type="button" value="Starten">
 
-        <h3 id="status"></h3>
+            </form>
+
+        </div>
+
+        <div id="questionView" hidden>
+            <h2 id="prompt"></h2>
+
+            <form>
+                <p id="A"><input type="checkbox" id="checkboxA"> <label id="answerA" for="checkboxA"></label></p>
+                <p id="B"><input type="checkbox" id="checkboxB"> <label id="answerB" for="checkboxB"></label></p>
+                <p id="C"><input type="checkbox" id="checkboxC"> <label id="answerC" for="checkboxC"></label></p>
+                <p id="D"><input type="checkbox" id="checkboxD"> <label id="answerD" for="checkboxD"></label></p>
+
+                <p>
+                    <input id="validation" type="button" value="Frage Prüfen" enabled>
+                    <input id="next" type="button" value="Nächste Frage" disabled>
+                </p>
+            </form>
+
+            <h3 id="status"></h3>
+        </div>
 
     </main>
 
@@ -999,7 +1014,7 @@
         if (correctlyAnswered)
             correct += 1
 
-        document.getElementById("status").innerText = correct + "/" + total + "/" + (questions.length + 1) + "\t" + correct / total * 100.0 + "%"
+        document.getElementById("status").innerText = correct + "/" + total + "/" + questions.length + "\t" + correct / total * 100.0 + "%"
 
         document.getElementById("validation").disabled = true
         if (total < questions.length) {
@@ -1022,7 +1037,37 @@
         document.getElementById("checkboxD").checked = false
     }
 
-    loadQuestion(0)
+    document.getElementById("start").addEventListener("click", start)
+
+    // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle.
+        while (currentIndex != 0) {
+
+            // Pick a remaining element.
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
+
+    function start() {
+        if (document.getElementById("randomized").checked) {
+            questions = shuffle(questions)
+        }
+
+        document.getElementById("homeView").hidden = true
+        document.getElementById("questionView").hidden = false
+
+        loadQuestion(0)
+    }
 
 </script>
 
